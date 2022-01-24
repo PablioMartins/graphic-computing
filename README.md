@@ -105,55 +105,30 @@ Before you begin, you will need to have the following tools installed on your ma
 [OpenGL](https://www.opengl.org//), [gcc](https://gcc.gnu.org/).
 In addition, it is good to have an editor to work with the code like [VSCode](https://code.visualstudio.com/)
 
-#### Rodando o Backend (servidor)
+
 
 ```bash
 
 # Clone this repository
-$ git clone git@github.com:jhonatheberson/README-ecoleta.git
+$ git clone git@github.com:jhonatheberson/graphic-computing.git
 
 # Access the project folder cmd/terminal
-$ cd README-ecoleta
+$ cd graphic-computing
 
 # go to the server folder
-$ cd server
+$ cd project
 
-# install the dependencies
-$ npm install
+# compiling the project
+$ g++ solar_systems.c -o solar_systems -lm -lGL -lGLU -lglut
 
-# Run the application in development mode
-$ npm run dev:server
+# Run the application 
+$ ./solar_systems
 
-# The server will start at port: 3333 - go to http://localhost:3333
-
-```
-
-<p align="center">
-  <a href="https://github.com/jhonatheberson/graphic-computing/blob/master/Insomnia_API_Ecoletajson.json" target="_blank"><img src="https://insomnia.rest/images/run.svg" alt="Run in Insomnia"></a>
-</p>
-
-#### Running the web application (Frontend)
-
-```bash
-
-# Clone this repository
-$ git clone git@github.com: jhonatheberson / README-ecoleta.git
-
-# Access the project folder in your terminal
-$ cd README-ecoleta
-
-# Go to the Front End application folder
-$ cd web
-
-# Install the dependencies
-$ npm install
-
-# Run the application in development mode
-$ npm run start
-
-# The application will open on the port: 3000 - go to http://localhost:3000
+# it will open a window running the application
 
 ```
+
+
 
 ---
 
