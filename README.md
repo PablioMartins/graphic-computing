@@ -195,8 +195,8 @@ A big thanks to this group that made this product leave the field of idea and en
 
 You are an awesome team! :)
 
-<!--
-<table>
+
+<!-- <table>
   <tr>
     <td align="center"><a href="https://rocketseat.com.br"><img style="border-radius: 50%;" src="https://avatars2.githubusercontent.com/u/2254731?s=400&u=0ba16a79456c2f250e7579cb388fa18c5c2d7d65&v=4" width="100px;" alt=""/><br /><sub><b>Diego Fernandes</b></sub></a><br /><a href="https://rocketseat.com.br/" title="Rocketseat"></a></td>
     <td align="center"><a href="https://rocketseat.com.br"><img style="border-radius: 50%;" src="https://avatars1.githubusercontent.com/u/4669899?s=460&u=806503605676192b5d0c363e4490e13d8127ed64&v=4" width="100px;" alt=""/><br /><sub><b>Cleiton Souza</b></sub></a><br /><a href="https://rocketseat.com.br/" title="Rocketseat"></a></td>
@@ -215,7 +215,7 @@ You are an awesome team! :)
      <td align="center"><a href="https://rocketseat.com.br"><img style="border-radius: 50%;" src="https://avatars0.githubusercontent.com/u/5151405?s=460&u=1dbcf0e89087c2dc902d3331b90e532db1543d2b&v=4" width="100px;" alt=""/><br /><sub><b>Luiz Batanero</b></sub></a><br /><a href="https://rocketseat.com.br/" title="Rocketseat"></a></td>
 
   </tr>
-</table> -->
+</table>  -->
 
 ## How to contribute
 
@@ -229,11 +229,22 @@ You are an awesome team! :)
 
 ## Author
 
-<a href="https://github.com/jhonatheberson">
+<table>
+  <tr>
+    <td align="center"><a href="https://github.com/jhonatheberson"><img style="border-radius: 50%;" src="https://avatars.githubusercontent.com/u/42505240?v=4" width="100px;" alt=""/><br /><sub><b>Jhonat Heberson</b></sub></a><br /><a href="https://rocketseat.com.br/" title="Github"></a></td>
+    <td align="center"><a href="https://github.com/Klyfton"><img style="border-radius: 50%;" src="https://avatars.githubusercontent.com/u/55387837?v=4" width="100px;" alt=""/><br /><sub><b>Klyfton</b></sub></a><br /><a href="https://github.com/PablioMartins" title="Github"></a></td>
+    <td align="center"><a href="https://github.com/PablioMartins"><img style="border-radius: 50%;" src="https://avatars.githubusercontent.com/u/33848664?v=4" width="100px;" alt=""/><br /><sub><b>PablioMartins</b></sub></a><br /><a href="https://github.com/PablioMartins" title="Github"></a></td>
+    <td align="center"><a href="https://github.com/fequeiroz"><img style="border-radius: 50%;" src="https://avatars.githubusercontent.com/u/38250149?v=4" width="100px;" alt=""/><br /><sub><b>Fernando Queiroz</b></sub></a><br /><a href="https://github.com/fequeiroz" title="Github"></a></td>
+
+
+    
+</table>
+
+<!-- <a href="https://github.com/jhonatheberson">
  <img style="border-radius: 50%;" src="https://avatars3.githubusercontent.com/u/42505240?s=460&u=20d12ba68e5b22a99167d26cb85d28815599d08c&v=4" width="100px;" alt="Jhonat Heberson"/>
  <br />
  <sub><b>Jhonat Heberson</b></sub></a> <a href="https://github.com/jhonatheberson" title="Github"></a>
- <br />
+ <br /> -->
 
 <!-- [![Twitter Badge](https://img.shields.io/badge/-@jhonatheberson-1ca0f1?style=flat-square&labelColor=1ca0f1&logo=twitter&logoColor=white&link=https://twitter.com/jhonatheberson)](https://twitter.com/jhonatheberson)  -->
 
