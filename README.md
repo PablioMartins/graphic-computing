@@ -66,7 +66,7 @@
 ## Features
 
 - [x] system operation
-  - [ ] corresponding dimensions of the planets
+  - [x] corresponding dimensions of the planets
   - [ ] corresponding rotation of the planets
 - [ ] solar system lighting application
 - [ ] texture applications in the solar system

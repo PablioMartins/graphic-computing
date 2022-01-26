@@ -468,6 +468,22 @@ void keyboard (unsigned char key, int x, int y)
 			cursor.Z++;
     glutPostRedisplay();
 		break;
+    case 'M':
+			escala_orbita = escala_orbita*2;
+    glutPostRedisplay();
+		break;
+    case 'm':
+			escala_orbita = escala_orbita*2;
+    glutPostRedisplay();
+		break;
+    case 'N':
+			escala_orbita = escala_orbita/2;
+    glutPostRedisplay();
+		break;
+    case 'n':
+			escala_orbita = escala_orbita/2;
+    glutPostRedisplay();
+		break;
 	}
 }
 
