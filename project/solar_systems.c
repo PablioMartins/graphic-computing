@@ -1,125 +1,482 @@
-/*
- * Copyright (c) 1993-1997, Silicon Graphics, Inc.
- * ALL RIGHTS RESERVED 
- * Permission to use, copy, modify, and distribute this software for 
- * any purpose and without fee is hereby granted, provided that the above
- * copyright notice appear in all copies and that both the copyright notice
- * and this permission notice appear in supporting documentation, and that 
- * the name of Silicon Graphics, Inc. not be used in advertising
- * or publicity pertaining to distribution of the software without specific,
- * written prior permission. 
- *
- * THE MATERIAL EMBODIED ON THIS SOFTWARE IS PROVIDED TO YOU "AS-IS"
- * AND WITHOUT WARRANTY OF ANY KIND, EXPRESS, IMPLIED OR OTHERWISE,
- * INCLUDING WITHOUT LIMITATION, ANY WARRANTY OF MERCHANTABILITY OR
- * FITNESS FOR A PARTICULAR PURPOSE.  IN NO EVENT SHALL SILICON
- * GRAPHICS, INC.  BE LIABLE TO YOU OR ANYONE ELSE FOR ANY DIRECT,
- * SPECIAL, INCIDENTAL, INDIRECT OR CONSEQUENTIAL DAMAGES OF ANY
- * KIND, OR ANY DAMAGES WHATSOEVER, INCLUDING WITHOUT LIMITATION,
- * LOSS OF PROFIT, LOSS OF USE, SAVINGS OR REVENUE, OR THE CLAIMS OF
- * THIRD PARTIES, WHETHER OR NOT SILICON GRAPHICS, INC.  HAS BEEN
- * ADVISED OF THE POSSIBILITY OF SUCH LOSS, HOWEVER CAUSED AND ON
- * ANY THEORY OF LIABILITY, ARISING OUT OF OR IN CONNECTION WITH THE
- * POSSESSION, USE OR PERFORMANCE OF THIS SOFTWARE.
- * 
- * US Government Users Restricted Rights 
- * Use, duplication, or disclosure by the Government is subject to
- * restrictions set forth in FAR 52.227.19(c)(2) or subparagraph
- * (c)(1)(ii) of the Rights in Technical Data and Computer Software
- * clause at DFARS 252.227-7013 and/or in similar or successor
- * clauses in the FAR or the DOD or NASA FAR Supplement.
- * Unpublished-- rights reserved under the copyright laws of the
- * United States.  Contractor/manufacturer is Silicon Graphics,
- * Inc., 2011 N.  Shoreline Blvd., Mountain View, CA 94039-7311.
- *
- * OpenGL(R) is a registered trademark of Silicon Graphics, Inc.
- */
-
-/*
- *  planet.c
- *  This program shows how to composite modeling transformations
- *  to draw translated and rotated models.
- *  Interaction:  pressing the d and y keys (day and year)
- *  alters the rotation of the planet around the sun.
- */
+#include <stdbool.h>
 #include <GL/glut.h>
 #include <stdlib.h>
+#include <math.h>
 
-static int year = 0, day = 0;
+//Estruturas
+typedef struct{
+	float Translacao;
+	float Rotacao;
+	int Faces;
+	int TamanhoTranslacao;
+	bool Estado;
+}Planeta;
+
+typedef struct{
+	int X;
+	int Y;
+	int Z;
+}EixoINT;
+
+typedef struct{
+	float X;
+	float Y;
+	float Z;
+}EixoFLOAT;
+
+typedef struct{
+	float Largura;
+	float Altura;
+}Janela;
+
+
+
+//Variaveis das planetas
+Planeta sun;
+Planeta mercury;
+Planeta venus;
+Planeta earth;
+Planeta mars;
+Planeta jupiter;
+Planeta uranus;
+Planeta neptune;
+Planeta saturn;
+
+//Variaveis da Camera
+int modoCamera = 1;
+float anguloCameraA = 90;
+float anguloCameraB = 0;
+EixoFLOAT camera;
+EixoINT cursor;
+EixoINT mouse;
+Janela janela;
+int horizonteEventos = 1;//Espaço Visivel
+
+
+void setup(){
+	
+  
+  /*Configurações dos Planetas*/
+  //SOL
+
+	sun.Translacao = 0;
+	sun.Faces = 200;
+	sun.Estado = true;
+	sun.Rotacao = 0;
+
+	//MERCURIO
+
+	mercury.Translacao = 90;
+	mercury.Rotacao = 10;
+	mercury.TamanhoTranslacao = 126;
+	mercury.Faces = 200;
+	mercury.Estado = true;
+
+	//VENUS
+
+	venus.Translacao = 30;
+	venus.Rotacao = 10;
+	venus.TamanhoTranslacao = 166;
+	venus.Faces = 200;
+	venus.Estado = true;
+
+	//TERRA
+
+	earth.Translacao = 90;
+	earth.Rotacao = 90;
+	earth.TamanhoTranslacao = 200;
+	earth.Faces = 200;
+	earth.Estado = true;
+
+	//MARTE
+
+	mars.Translacao = 10;
+	mars.Rotacao = 10;
+	mars.TamanhoTranslacao = 264;
+	mars.Faces = 200;
+	mars.Estado = true;
+
+	//JUPITER
+
+	jupiter.Translacao = 78;
+	jupiter.Rotacao = 10;
+	jupiter.TamanhoTranslacao = 500;
+	jupiter.Faces = 200;
+	jupiter.Estado = true;
+
+	//URANO
+	uranus.Translacao = 10;
+	uranus.Rotacao = 10;
+	uranus.TamanhoTranslacao = 900;
+	uranus.Faces = 200;
+	uranus.Estado = true;
+
+	//NETUNO
+	neptune.Translacao = 10;
+	neptune.Rotacao = 90;
+	neptune.TamanhoTranslacao = 1000;
+	neptune.Faces = 200;
+	neptune.Estado = true;
+
+	//Saturno
+	saturn.Translacao = 10;
+	saturn.Rotacao = 10;
+	saturn.TamanhoTranslacao = 670;
+	saturn.Faces = 200;
+	saturn.Estado = true;
+}
+
+void cam(){
+	camera.X = 800 * sin(anguloCameraA) * cos(anguloCameraB);
+    camera.Y = 800 * sin(anguloCameraA);
+    camera.Z = 800 * cos(anguloCameraA) * sin(anguloCameraB);
+    switch(modoCamera){
+    	case 1:
+          // muda a modo de visão da câmera
+          // gluLookAt cria uma matriz de visualização derivada de um ponto de olho, um ponto de referência indicando o centro da cena e um vetor UP.
+          // A matriz mapeia o ponto de referência para o eixo z negativo e o ponto do olho para a origem. 
+          //Quando uma matriz de projeção típica é usada, o centro da cena é mapeado para o centro da viewport. Da mesma forma, a direção descrita pelo vetor UP projetado no plano de visualização é mapeada para o eixo y positivo para que aponte para cima na janela de visualização. O vetor UP não deve ser paralelo à linha de visão do ponto do olho até o ponto de referência.
+          //dinâmico 
+          gluLookAt(cursor.X+camera.X, camera.Y, cursor.Z+camera.Z, cursor.X+0, 0, cursor.Z+0, 0, 1, 0);
+    	break;
+    	case 2:
+      //estático
+    		gluLookAt(0, 0, 1080, 0, 0, 0, 0, 1, 0);
+    	break;
+    }
+}
+
+
+
+void RenderModel(){
+	glEnable(GL_TEXTURE_2D);
+		
+      // inicia bufer de matrix, para coloca no topo o que vai ser alterado
+    	glPushMatrix();
+	        // realiza a rotação de translação do planeta
+          glRotatef(sun.Translacao, 0, 1, 0);
+          // realiza rotação em torno do seu eixo
+	        glRotatef(90, 1, 0, 0);
+          // rendere a esfera no lugar informado raio,  
+          //glutSolidSphere e glutWireSphere renderizam uma esfera sólida ou de estrutura de arame, respectivamente.
+          //void glutWireSphere(GLdouble radius,
+                    //fatias GLint, pilhas GLint);
+          glutWireSphere(100 , sun.Faces, sun.Faces);
+        // retira do bufer do topo o obe=jeto a ser modificado   		 
+        glPopMatrix();
+
+
+		//Mercurio
+		
+		glPushMatrix();
+	        glRotatef(mercury.Translacao, 0, 1, 0);
+	        glTranslatef(mercury.TamanhoTranslacao, 0.0, 0);
+	        glRotatef(mercury.Rotacao, 0, 1, 0);
+	        glRotatef(97, 1, 0, 0); 
+          glutWireSphere(0.5 * horizonteEventos, mercury.Faces, mercury.Faces);    /* draw smaller planet */
+	        // criaSphere(0.5 * horizonteEventos, mercury.Faces, mercury.Faces);
+	    glPopMatrix();
+
+      /*Orbita dos Planetas*/
+      // cria um objeto disco
+      GLUquadric *disc_mercury;
+      disc_mercury = gluNewQuadric(); 
+
+      glPushMatrix();
+        //aplica a rotação em torno do seu eixo
+        glRotatef(0, 0, -1, 0);
+        glRotatef(90, 1, 0, 0);
+        // aplica trasnlação para centro 
+        glTranslatef(0, 0, 0);
+        // gluDisk — desenha um disco
+        // O gluDisk renderiza um disco no plano z = 0. 
+        // O disco tem um raio externo e contém um furo circular concêntrico com um raio interno. 
+        // Se internal for 0, nenhum furo será gerado.
+        //  O disco é subdividido em torno do eixo z em fatias (como fatias de pizza) e também em torno do eixo z em anéis (conforme especificado por fatias e loops, respectivamente).
+        gluDisk(disc_mercury, mercury.TamanhoTranslacao, mercury.TamanhoTranslacao+0.5, 600, 600);
+      glPopMatrix();
+      // delete objeto para não ocupar memoria desnecessario
+      gluDeleteQuadric(disc_mercury);
+	    //Venus  
+	    glPushMatrix();
+	        glRotatef(venus.Translacao, 0, 1, 0);
+	        glTranslatef(venus.TamanhoTranslacao, 0.0, 0);
+	        glRotatef(venus.Rotacao, 0, 1, 0);
+	        glRotatef(-267, 1, 0, 0);       
+          glutWireSphere(0.95 * horizonteEventos, venus.Faces, venus.Faces); 
+	        // criaSphere(0.95 * horizonteEventos, venus.Faces, venus.Faces);
+	    glPopMatrix();
+
+      GLUquadric *disk_venus;
+      disk_venus = gluNewQuadric(); 
+
+      glPushMatrix();
+    
+        glRotatef(0, 0, -1, 0);
+        glRotatef(90, 1, 0, 0);
+        glTranslatef(0, 0, 0);
+        gluDisk(disk_venus, venus.TamanhoTranslacao, mercury.TamanhoTranslacao+0.5, 600, 600);
+      glPopMatrix();
+      gluDeleteQuadric(disk_venus);
+	    //Terra
+	    glPushMatrix();
+	        glRotatef(earth.Translacao, 0, 1, 0);
+	        glTranslatef(earth.TamanhoTranslacao, 0.0, 0);
+	        glRotatef(earth.Rotacao, 0, 1, 0);
+	        glRotatef(-133.5, 1, 0, 0);        
+          glutWireSphere(1 * horizonteEventos, earth.Faces, earth.Faces); 
+	        // criaSphere(1 * horizonteEventos, earth.Faces, earth.Faces);
+	    glPopMatrix();
+      GLUquadric *disk_earth;
+      disk_earth = gluNewQuadric(); 
+
+      glPushMatrix();
+    
+        glRotatef(0, 0, -1, 0);
+        glRotatef(90, 1, 0, 0);
+        glTranslatef(0, 0, 0);
+        gluDisk(disk_earth, earth.TamanhoTranslacao, earth.TamanhoTranslacao+0.5, 600, 600);
+      glPopMatrix();
+      gluDeleteQuadric(disk_earth);
+	    //Marte  
+	    glPushMatrix();
+	        glRotatef(mars.Translacao, 0, 1, 0);
+	        glTranslatef(mars.TamanhoTranslacao, 0.0, 0);
+	        glRotatef(mars.Rotacao, 0, 1, 0);
+	        glRotatef(115, 1, 0, 0);        
+	        glutWireSphere(0.53 * horizonteEventos, mars.Faces, mars.Faces); 
+          // criaSphere(0.53 * horizonteEventos, mars.Faces, mars.Faces);
+	    glPopMatrix();
+
+      GLUquadric *disk_mars;
+      disk_mars = gluNewQuadric(); 
+
+      glPushMatrix();
+    
+        glRotatef(0, 0, -1, 0);
+        glRotatef(90, 1, 0, 0);
+        glTranslatef(0, 0, 0);
+        gluDisk(disk_mars, mars.TamanhoTranslacao, mars.TamanhoTranslacao+0.5, 600, 600);
+      glPopMatrix();
+      gluDeleteQuadric(disk_mars);
+	    //Jupiter
+	    glPushMatrix();
+	        glRotatef(jupiter.Translacao, 0, 1, 0);
+	        glTranslatef(jupiter.TamanhoTranslacao, 0.0, 0);
+	        glRotatef(jupiter.Rotacao, 0, 1, 0);
+	        glRotatef(93, 1, 0, 0);        
+	        glutWireSphere(9.2 * horizonteEventos, jupiter.Faces, jupiter.Faces); 
+          // criaSphere(9.2 * horizonteEventos, jupiter.Faces, jupiter.Faces);
+	    glPopMatrix();
+
+      GLUquadric *disk_jupiter;
+      disk_jupiter = gluNewQuadric(); 
+
+      glPushMatrix();
+    
+        glRotatef(0, 0, -1, 0);
+        glRotatef(90, 1, 0, 0);
+        glTranslatef(0, 0, 0);
+        gluDisk(disk_jupiter, jupiter.TamanhoTranslacao, jupiter.TamanhoTranslacao+0.5, 600, 600);
+      glPopMatrix();
+      gluDeleteQuadric(disk_jupiter);
+	    //Urano
+	    glPushMatrix();
+	        glRotatef(uranus.Translacao, 0, 1, 0);
+	        glTranslatef(uranus.TamanhoTranslacao, 0.0, 0);
+	        glRotatef(uranus.Rotacao, 0, 1, 0);
+	        glRotatef(-188, 1, 0, 0);        
+	        glutWireSphere(4.1 * horizonteEventos, uranus.Faces, uranus.Faces); 
+          // criaSphere(4.1 * horizonteEventos, uranus.Faces, uranus.Faces);
+	    glPopMatrix();
+
+      GLUquadric *disku_ranus;
+      disku_ranus = gluNewQuadric(); 
+
+      glPushMatrix();
+    
+        glRotatef(0, 0, -1, 0);
+        glRotatef(90, 1, 0, 0);
+        glTranslatef(0, 0, 0);
+        gluDisk(disku_ranus, uranus.TamanhoTranslacao, uranus.TamanhoTranslacao+0.5, 600, 600);
+      glPopMatrix();
+      gluDeleteQuadric(disku_ranus);
+	    //Netuno 
+	    glPushMatrix();
+	        glRotatef(neptune.Translacao, 0, 1, 0);
+	        glTranslatef(neptune.TamanhoTranslacao, 0.0, 0);
+	        glRotatef(neptune.Rotacao, 0, 1, 0);
+	        glRotatef(120, 1, 0, 0);        
+	        glutWireSphere(3.88 * horizonteEventos, neptune.Faces, neptune.Faces); 
+          // criaSphere(3.88 * horizonteEventos, neptune.Faces, neptune.Faces);
+	    glPopMatrix();
+
+      GLUquadric *disk_neptune;
+      disk_neptune = gluNewQuadric(); 
+
+      glPushMatrix();
+    
+        glRotatef(0, 0, -1, 0);
+        glRotatef(90, 1, 0, 0);
+        glTranslatef(0, 0, 0);
+        gluDisk(disk_neptune, neptune.TamanhoTranslacao, neptune.TamanhoTranslacao+0.5, 600, 600);
+      glPopMatrix();
+      gluDeleteQuadric(disk_neptune);
+	    //Saturno  
+	    glPushMatrix();
+	        glRotatef(saturn.Translacao, 0, 1, 0);
+	        glTranslatef(saturn.TamanhoTranslacao, 0.0, 0);
+	        glRotatef(saturn.Rotacao, 0, 1, 0);
+	        glRotatef(117, 1, 0, 0);        
+	        glutWireSphere(7.45 * horizonteEventos, saturn.Faces, saturn.Faces); 
+          // criaSphere(7.45 * horizonteEventos, saturn.Faces, saturn.Faces);
+	    glPopMatrix();
+
+      GLUquadric *disk_saturn;
+      disk_saturn = gluNewQuadric(); 
+
+      glPushMatrix();
+    
+        glRotatef(0, 0, -1, 0);
+        glRotatef(90, 1, 0, 0);
+        glTranslatef(0, 0, 0);
+        gluDisk(disk_saturn, saturn.TamanhoTranslacao, saturn.TamanhoTranslacao+0.5, 600, 600);
+      glPopMatrix();
+      gluDeleteQuadric(disk_saturn);
+    glutSwapBuffers();
+    glDisable(GL_TEXTURE_2D);
+}
 
 void init(void) 
 {
-   glClearColor (0.0, 0.0, 0.0, 0.0);
-   glShadeModel (GL_FLAT);
+  // limpa bufer de cor
+  glClearColor (0.0, 0.0, 0.0, 0.0);
+  // glShadeModel — selecione sombreamento plano ou suave
+  // As primitivas GL podem ter sombreamento plano ou suave. O sombreamento suave, 
+  // o padrão, faz com que as cores computadas dos vértices sejam interpoladas
+  //  à medida que o primitivo é rasterizado, normalmente atribuindo cores diferentes a cada fragmento de pixel resultante. 
+  // O sombreamento plano seleciona a cor calculada de apenas um vértice e a atribui a todos os fragmentos de pixel gerados pela rasterização de uma única primitiva.
+  //  Em ambos os casos, a cor calculada de um vértice é o resultado da iluminação se a iluminação estiver ativada ou é a cor atual no momento em que o vértice foi especificado se a iluminação estiver desativada
+  glShadeModel (GL_FLAT);
 }
 
 void display(void)
 {
-   glClear (GL_COLOR_BUFFER_BIT);
-   glColor3f (1.0, 1.0, 1.0);
+  //limpando buffer de cor e profundidade
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  // glLoadIdentity — substitui a matriz atual pela matriz identidade
+  // lipando a matrix - retirando sugeiras
+  glLoadIdentity();
+  //setando cor padrão
+  glColor3f (1.0, 1.0, 1.0);
+  cam();
+  RenderModel();
 
-   glPushMatrix();
-   glutWireSphere(1.0, 20, 16);   /* draw sun */
-   glRotatef ((GLfloat) year, 0.0, 1.0, 0.0);
-   glTranslatef (2.0, 0.0, 0.0);
-   glRotatef ((GLfloat) day, 0.0, 1.0, 0.0);
-   glutWireSphere(0.2, 10, 8);    /* draw smaller planet */
-   glTranslatef (0.5, 2.0, 0.0);
-   glRotatef ((GLfloat) day, 0.0, 1.0, 0.0);
-   glutWireSphere(0.1, 15, 8);    /* draw smaller planet */
-   glPopMatrix();
-   glutSwapBuffers();
+  
 }
 
 void reshape (int w, int h)
 {
-   glViewport (0, 0, (GLsizei) w, (GLsizei) h); 
-   glMatrixMode (GL_PROJECTION);
-   glLoadIdentity ();
-   gluPerspective(60.0, (GLfloat) w/(GLfloat) h, 1.0, 20.0);
-   glMatrixMode(GL_MODELVIEW);
-   glLoadIdentity();
-   gluLookAt (0.0, 0.0, 5.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+  //glViewport especifica a transformação afim de xey de coordenadas de dispositivo normalizadas para coordenadas de janela. Seja x nd y nd as coordenadas normalizadas do dispositivo. Em seguida, 
+  // as coordenadas da janela x w y w são calculadas da seguinte forma:
+  // x w = x nd + 1 ⁢ width 2 + x
+  // y w = y nd + 1 ⁢ height 2 + y
+  glViewport (0, 0, (GLsizei) w, (GLsizei) h); 
+  //glMatrixMode — especifica qual matriz é a matriz atual
+  glMatrixMode (GL_PROJECTION);
+  glLoadIdentity ();
+  //gluPerspective — configura uma matriz de projeção em perspectiva
+  //gluPerspective especifica um tronco de visualização no sistema de coordenadas do mundo. 
+  //Em geral, a proporção no gluPerspective deve corresponder à proporção da janela de visualização associada. 
+  //Por exemplo, aspecto = 2,0 significa que o ângulo de visão do espectador é duas vezes maior em x do que em y. 
+  // Se a janela de visualização for duas vezes maior que a altura, ela exibirá a imagem sem distorção
+  gluPerspective(60.0, (float)w/(float)h, 0.2, 2147483647.0);
+  //glMatrixMode — especifica qual matriz é a matriz atual
+  glMatrixMode(GL_MODELVIEW);
+  glLoadIdentity();
+  gluLookAt(0, 0, 1080, 0, 0, 0, 0, 1, 0);
 }
-
+// função que faz controle de variaveis dinâmicas
 void keyboard (unsigned char key, int x, int y)
 {
-   switch (key) {
-      case 'd':
-         day = (day + 10) % 360;
-         glutPostRedisplay();
-         break;
-      case 'D':
-         day = (day - 10) % 360;
-         glutPostRedisplay();
-         break;
-      case 'y':
-         year = (year + 5) % 360;
-         glutPostRedisplay();
-         break;
-      case 'Y':
-         year = (year - 5) % 360;
-         glutPostRedisplay();
-         break;
-      case 27:
-         exit(0);
-         break;
-      default:
-         break;
-   }
+   switch(key){
+		case 'e':
+			if(horizonteEventos == 1){
+				horizonteEventos = 10;
+			} else{
+				horizonteEventos = 1;
+			}
+    //glutPostRedisplay marca a janela atual como precisando ser exibida novamente.
+    // renderiza a tela para aplicar as mudanças 
+    glutPostRedisplay();
+		break;
+		case 'E':
+			if(horizonteEventos == 1){
+				horizonteEventos = 10;
+			} else{
+				horizonteEventos = 1;
+			}
+    glutPostRedisplay();
+		break;
+    case '1':
+			modoCamera = 1;
+    glutPostRedisplay();
+		break;
+		case '2':
+			modoCamera = 2;
+    glutPostRedisplay();
+		break;
+		case 27:
+			exit(0);
+    glutPostRedisplay();
+		break;
+		case 'w':
+			cursor.X--;
+    glutPostRedisplay();
+		break;
+		case 'W':
+			cursor.X--;
+    glutPostRedisplay();
+		break;
+		case 's':
+			cursor.X++;
+    glutPostRedisplay();
+		break;
+		case 'S':
+			cursor.X++;
+    glutPostRedisplay();
+		break;
+		case 'a':
+			cursor.Z--;
+    glutPostRedisplay();
+		break;
+		case 'A':
+			cursor.Z--;
+    glutPostRedisplay();
+		break;
+		case 'd':
+			cursor.Z++;
+    glutPostRedisplay();
+		break;
+		case 'D':
+			cursor.Z++;
+    glutPostRedisplay();
+		break;
+	}
 }
 
 int main(int argc, char** argv)
 {
-   glutInit(&argc, argv);
-   glutInitDisplayMode (GLUT_DOUBLE | GLUT_RGB);
-   glutInitWindowSize (500, 500); 
-   glutInitWindowPosition (100, 100);
-   glutCreateWindow (argv[0]);
-   init ();
-   glutDisplayFunc(display); 
-   glutReshapeFunc(reshape);
-   glutKeyboardFunc(keyboard);
-   glutMainLoop();
-   return 0;
+  setup();
+  glutInit(&argc, argv);
+  glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
+  glutInitWindowSize(1400, 840);
+  glutInitWindowPosition (0, 0);
+  glutCreateWindow (argv[0]);
+  init ();
+  glutDisplayFunc(display); 
+  glutReshapeFunc(reshape);
+  glutKeyboardFunc(keyboard);
+  glutMainLoop();
+  return 0;
 }
