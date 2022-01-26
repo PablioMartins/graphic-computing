@@ -90,6 +90,15 @@
 
 </p>
 
+### Modelagem 
+
+<p align="center">
+  <img alt="Ecoleta" title="#Ecoleta" src="./assets/modelo_escala_raios_distancia.png">
+
+
+</p>
+
+
 ---
 
 ## How it works

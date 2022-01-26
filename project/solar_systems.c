@@ -1,7 +1,11 @@
+//escala
+// http://www.if.ufrgs.br/oei/cgu/sca/sca.htm
+
 #include <stdbool.h>
 #include <GL/glut.h>
 #include <stdlib.h>
 #include <math.h>
+
 
 //Estruturas
 typedef struct{
@@ -51,6 +55,8 @@ EixoINT cursor;
 EixoINT mouse;
 Janela janela;
 int horizonteEventos = 1;//Espaço Visivel
+int escala_orbita = 1000;
+int escala_raio_planet = 1;
 
 
 void setup(){
@@ -60,69 +66,69 @@ void setup(){
   //SOL
 
 	sun.Translacao = 0;
-	sun.Faces = 200;
+	sun.Faces = 50;
 	sun.Estado = true;
 	sun.Rotacao = 0;
 
 	//MERCURIO
 
-	mercury.Translacao = 90;
+	mercury.Translacao = 125;
 	mercury.Rotacao = 10;
-	mercury.TamanhoTranslacao = 126;
-	mercury.Faces = 200;
+	mercury.TamanhoTranslacao = 6900/escala_orbita;
+	mercury.Faces = 50;
 	mercury.Estado = true;
 
 	//VENUS
 
 	venus.Translacao = 30;
 	venus.Rotacao = 10;
-	venus.TamanhoTranslacao = 166;
-	venus.Faces = 200;
+	venus.TamanhoTranslacao = 12800/escala_orbita;
+	venus.Faces = 50;
 	venus.Estado = true;
 
 	//TERRA
 
 	earth.Translacao = 90;
 	earth.Rotacao = 90;
-	earth.TamanhoTranslacao = 200;
-	earth.Faces = 200;
+	earth.TamanhoTranslacao = 17700/escala_orbita;
+	earth.Faces = 50;
 	earth.Estado = true;
 
 	//MARTE
 
 	mars.Translacao = 10;
 	mars.Rotacao = 10;
-	mars.TamanhoTranslacao = 264;
-	mars.Faces = 200;
+	mars.TamanhoTranslacao = 27000/escala_orbita;
+	mars.Faces = 50;
 	mars.Estado = true;
 
 	//JUPITER
 
 	jupiter.Translacao = 78;
 	jupiter.Rotacao = 10;
-	jupiter.TamanhoTranslacao = 500;
-	jupiter.Faces = 200;
+	jupiter.TamanhoTranslacao = 92300/escala_orbita;
+	jupiter.Faces = 50;
 	jupiter.Estado = true;
 
 	//URANO
 	uranus.Translacao = 10;
 	uranus.Rotacao = 10;
-	uranus.TamanhoTranslacao = 900;
-	uranus.Faces = 200;
+	uranus.TamanhoTranslacao = 340400/escala_orbita;
+	uranus.Faces = 50;
 	uranus.Estado = true;
 
 	//NETUNO
 	neptune.Translacao = 10;
 	neptune.Rotacao = 90;
-	neptune.TamanhoTranslacao = 1000;
-	neptune.Faces = 200;
+	neptune.TamanhoTranslacao = 533300/escala_orbita;
+	neptune.Faces = 50;
 	neptune.Estado = true;
 
 	//Saturno
 	saturn.Translacao = 10;
 	saturn.Rotacao = 10;
-	saturn.TamanhoTranslacao = 670;
-	saturn.Faces = 200;
+	saturn.TamanhoTranslacao = 169300/escala_orbita;
+	saturn.Faces = 50;
 	saturn.Estado = true;
 }
 
@@ -161,7 +167,7 @@ void RenderModel(){
           //glutSolidSphere e glutWireSphere renderizam uma esfera sólida ou de estrutura de arame, respectivamente.
           //void glutWireSphere(GLdouble radius,
                     //fatias GLint, pilhas GLint);
-          glutWireSphere(100 , sun.Faces, sun.Faces);
+          glutWireSphere(16.51* escala_raio_planet , sun.Faces, sun.Faces);
         // retira do bufer do topo o obe=jeto a ser modificado   		 
         glPopMatrix();
 
@@ -173,8 +179,8 @@ void RenderModel(){
 	        glTranslatef(mercury.TamanhoTranslacao, 0.0, 0);
 	        glRotatef(mercury.Rotacao, 0, 1, 0);
 	        glRotatef(97, 1, 0, 0); 
-          glutWireSphere(0.5 * horizonteEventos, mercury.Faces, mercury.Faces);    /* draw smaller planet */
-	        // criaSphere(0.5 * horizonteEventos, mercury.Faces, mercury.Faces);
+          glutWireSphere(0.058 * horizonteEventos*escala_raio_planet, mercury.Faces, mercury.Faces);    /* draw smaller planet */
+	        
 	    glPopMatrix();
 
       /*Orbita dos Planetas*/
@@ -203,8 +209,8 @@ void RenderModel(){
 	        glTranslatef(venus.TamanhoTranslacao, 0.0, 0);
 	        glRotatef(venus.Rotacao, 0, 1, 0);
 	        glRotatef(-267, 1, 0, 0);       
-          glutWireSphere(0.95 * horizonteEventos, venus.Faces, venus.Faces); 
-	        // criaSphere(0.95 * horizonteEventos, venus.Faces, venus.Faces);
+          glutWireSphere(00.14 * horizonteEventos*escala_raio_planet, venus.Faces, venus.Faces); 
+	        
 	    glPopMatrix();
 
       GLUquadric *disk_venus;
@@ -224,8 +230,8 @@ void RenderModel(){
 	        glTranslatef(earth.TamanhoTranslacao, 0.0, 0);
 	        glRotatef(earth.Rotacao, 0, 1, 0);
 	        glRotatef(-133.5, 1, 0, 0);        
-          glutWireSphere(1 * horizonteEventos, earth.Faces, earth.Faces); 
-	        // criaSphere(1 * horizonteEventos, earth.Faces, earth.Faces);
+          glutWireSphere(0.15 * horizonteEventos*escala_raio_planet, earth.Faces, earth.Faces); 
+	        
 	    glPopMatrix();
       GLUquadric *disk_earth;
       disk_earth = gluNewQuadric(); 
@@ -244,8 +250,8 @@ void RenderModel(){
 	        glTranslatef(mars.TamanhoTranslacao, 0.0, 0);
 	        glRotatef(mars.Rotacao, 0, 1, 0);
 	        glRotatef(115, 1, 0, 0);        
-	        glutWireSphere(0.53 * horizonteEventos, mars.Faces, mars.Faces); 
-          // criaSphere(0.53 * horizonteEventos, mars.Faces, mars.Faces);
+	        glutWireSphere(0.08 * horizonteEventos*escala_raio_planet, mars.Faces, mars.Faces); 
+          
 	    glPopMatrix();
 
       GLUquadric *disk_mars;
@@ -265,8 +271,8 @@ void RenderModel(){
 	        glTranslatef(jupiter.TamanhoTranslacao, 0.0, 0);
 	        glRotatef(jupiter.Rotacao, 0, 1, 0);
 	        glRotatef(93, 1, 0, 0);        
-	        glutWireSphere(9.2 * horizonteEventos, jupiter.Faces, jupiter.Faces); 
-          // criaSphere(9.2 * horizonteEventos, jupiter.Faces, jupiter.Faces);
+	        glutWireSphere(1.7 * horizonteEventos* escala_raio_planet, jupiter.Faces, jupiter.Faces); 
+          
 	    glPopMatrix();
 
       GLUquadric *disk_jupiter;
@@ -286,8 +292,8 @@ void RenderModel(){
 	        glTranslatef(uranus.TamanhoTranslacao, 0.0, 0);
 	        glRotatef(uranus.Rotacao, 0, 1, 0);
 	        glRotatef(-188, 1, 0, 0);        
-	        glutWireSphere(4.1 * horizonteEventos, uranus.Faces, uranus.Faces); 
-          // criaSphere(4.1 * horizonteEventos, uranus.Faces, uranus.Faces);
+	        glutWireSphere(0.6 * horizonteEventos*escala_raio_planet, uranus.Faces, uranus.Faces); 
+          
 	    glPopMatrix();
 
       GLUquadric *disku_ranus;
@@ -307,8 +313,8 @@ void RenderModel(){
 	        glTranslatef(neptune.TamanhoTranslacao, 0.0, 0);
 	        glRotatef(neptune.Rotacao, 0, 1, 0);
 	        glRotatef(120, 1, 0, 0);        
-	        glutWireSphere(3.88 * horizonteEventos, neptune.Faces, neptune.Faces); 
-          // criaSphere(3.88 * horizonteEventos, neptune.Faces, neptune.Faces);
+	        glutWireSphere(0.6 * horizonteEventos *escala_raio_planet, neptune.Faces, neptune.Faces); 
+          
 	    glPopMatrix();
 
       GLUquadric *disk_neptune;
@@ -328,8 +334,8 @@ void RenderModel(){
 	        glTranslatef(saturn.TamanhoTranslacao, 0.0, 0);
 	        glRotatef(saturn.Rotacao, 0, 1, 0);
 	        glRotatef(117, 1, 0, 0);        
-	        glutWireSphere(7.45 * horizonteEventos, saturn.Faces, saturn.Faces); 
-          // criaSphere(7.45 * horizonteEventos, saturn.Faces, saturn.Faces);
+	        glutWireSphere(1.4 * horizonteEventos*escala_raio_planet, saturn.Faces, saturn.Faces); 
+          
 	    glPopMatrix();
 
       GLUquadric *disk_saturn;
@@ -470,7 +476,7 @@ int main(int argc, char** argv)
   setup();
   glutInit(&argc, argv);
   glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
-  glutInitWindowSize(1400, 840);
+  glutInitWindowSize(169300, 169300);
   glutInitWindowPosition (0, 0);
   glutCreateWindow (argv[0]);
   init ();
