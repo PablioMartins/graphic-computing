@@ -97,7 +97,7 @@ Planeta neptune;
 Planeta saturn;
 
 //Variaveis da Camera
-int modoCamera = 1;
+int modoCamera = 0;
 float anguloCameraA = 90;
 float anguloCameraB = 0;
 EixoFLOAT camera;
@@ -125,40 +125,77 @@ float tamRastro = 1;
 
 // Variaveis de textura
 // identificador das texturas
-GLuint texturaId[11];
+GLuint texturaId[10];
 
 // textura 
-// parametros são id -> identifica a imagem no opengl, filePath -> caminho da imagem
+// parametros são (texId -> identifica a imagem no opengl), (filePath -> caminho da imagem)
 void carregaTextura(GLuint texId, char* filePath){
-    // guarda os dados da imagem
+    // Variável para guardar os dados da imagem
     unsigned char* imgData;
 
-    // dados da imagem
+    // Variaveis para guardar os parametros da imagem
     int largura, altura, canais;
     
-    stbi_set_flip_vertically_on_load(true);
+    // Define um flip vertical de leitura da imagem
+	/**
+	 * x - onde começa a leitura
+	 * 
+	 *  ________________				 ________________
+	 * |x				|				|				 |
+	 * |				|				|				 |
+	 * |				|				|				 |
+	 * |	imagem		| 				|	  imagem	 |
+	 * |				|		->		|				 |
+	 * |				|				|				 |
+	 * |________________|				|x_______________|
+	 *    antes do flip						apos o flip
+	 * 
+	 * A mudança foi necessária devido ao opengl que tem como padrão de leitura
+	 * o canto inferior esquerdo
+	 */
+	stbi_set_flip_vertically_on_load(true);
+
     // leitura da imagem -> caminho/largura/altura/qtd de canais no arquivo/qtd de canais
     imgData = stbi_load(filePath, &largura, &altura, &canais, 4);
 
     if(imgData){
-        // Liga um espaço de memoria no open gl ao id para criar a textura
+        // Liga um espaço de memoria no opengl ao texId passado para criar a textura
         glBindTexture(GL_TEXTURE_2D, texId);
     
-        // criação da textura
+        // Criação da textura apartir de uma imagem 2D
+		// Parametros:
+		// 1 - O objeto: GL_TEXTURE_2D
+		// 2 - O nivel de detalhamento: para imagens é "0" 
+		// 3 - Especifica o formato das cores na textura: GL_RGBA8 (Red - Gree - Blue - Alpha de 8bits)
+		// 4 - lagura da textura: no momento da leitura da imagem foi atribuida a variável "largura"
+		// 5 - altura da textura: no momento da leitura da imagem foi atribuida a variável "altura"
+		// 6 - tamanho da borda: "0" (sem borda)
+		// 7 - Formato de cores dos dados da imagem: GL_RGBA
+		// 8 - Especifica o tipo de dado da imagem: GL_UNSIGNED_BYTE (8 bits sem sinal)
+		// 9 - Dados da imagem: Armazenado em "imgData"
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, largura, altura, 0, GL_RGBA, GL_UNSIGNED_BYTE, imgData);
 
+		// Resolução de problema de miniaturização (Textura com alta resolução quando distante da camera)
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
+		// Quando há necessidade de ampliação da textura
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
+		// Repete a imagem em x (S no opengl) sempre que a largura da imagem for menor que a lagura da textura
+		// Para esse projeto a "lagura da Imagem" = "lagura da textura"
+		// devido ao parametro "largura" da textura ser o mesmo extraído da imagem
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 
+		// Repete a imagem em y (T no opengl) sempre que a altura da imagem for menor que a altura da textura
+		// Para esse projeto a "altura da Imagem" = "altura da textura"
+		// devido ao parametro "altru" da textura ser o mesmo extraído da imagem
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
+		// Liberação da memoria oculpada pela imagem
         stbi_image_free(imgData);
     }
     else {
-        printf("ERRO - Não foi possível carregar a Imagem!");
+        printf("ERRO - Não foi possível carregar a Imagem! - ");
     }
 }
 
@@ -169,7 +206,7 @@ void setup(){
 	// Link da translação e Rotação
 	// http://www.invivo.fiocruz.br/cgi/cgilua.exe/sys/start.htm?infoid=1177&sid=9
  	// 
-  //SOL
+  	//SOL
 
 	sun.Translacao = 0;
 	sun.Faces = 50;
@@ -181,7 +218,7 @@ void setup(){
 	//MERCURIO
 	
 	mercury.Translacao = 1; // 0.24 Anos - 0.24/0.24
-	mercury.vRotacao = 14300; // 58.6 dias - 58.6/0.41 = 142.93
+	mercury.vRotacao = 14293; // 58.6 dias - 58.6/0.41 = 142.93 -> x100 (diminuir a velocidade de rotação)
 	mercury.aRotacao = 0;
 	mercury.Raio = 1; //-> 2440/2440
 	mercury.TamanhoTranslacao = 115.82; //-> 57.910.000/500.000
@@ -191,7 +228,7 @@ void setup(){
 	//VENUS
 
 	venus.Translacao = 3; // 0.62 Anos - 0.62/0.24 = 2.58
-	venus.vRotacao = 59300; // 243 dias - 243/0.41 = 592.68
+	venus.vRotacao = 59268; // 243 dias - 243/0.41 = 592.68 -> x100 (diminuir a velocidade de rotação)
 	venus.aRotacao = 0;
 	venus.Raio = 4.96; //-> 12104/2440
 	venus.TamanhoTranslacao = 216.32; //-> 108.160.000/500.000
@@ -201,7 +238,7 @@ void setup(){
 	//TERRA
 
 	earth.Translacao = 4; // 1 Ano - 1/0.24 = 4.16
-	earth.vRotacao = 300; // 1 dia - 1/0.41 = 2.43
+	earth.vRotacao = 243; // 1 dia - 1/0.41 = 2.43 -> x100 (diminuir a velociade de rotação)
 	earth.aRotacao = 0;
 	earth.Raio = 5.22; //-> 12.742/2440
 	earth.TamanhoTranslacao = 299.2; //-> 149.600.000/500.000
@@ -211,7 +248,7 @@ void setup(){
 	//MARTE
 
 	mars.Translacao = 8; // 1.88 Anos - 1.88/0.24 = 7.83
-	mars.vRotacao = 300; // 1.03 dia - 1.03/0.41 = 2.51
+	mars.vRotacao = 251; // 1.03 dia - 1.03/0.41 = 2.51 -> x100 (diminuir a velociade de rotação)
 	mars.aRotacao = 0;
 	mars.Raio = 2.77; //-> 6.780/2440
 	mars.TamanhoTranslacao = 456; // 228.000.000/500.000
@@ -221,7 +258,7 @@ void setup(){
 	//JUPITER
 
 	jupiter.Translacao = 49; // 11.86 Anos - 11.86/0.24 = 49.42
-	jupiter.vRotacao = 100; // 0.41 dia - 0.41/0.41 = 1
+	jupiter.vRotacao = 100; // 0.41 dia - 0.41/0.41 = 1 -> x100 (diminuir a velociade de rotação)
 	jupiter.aRotacao = 0;
 	jupiter.Raio = 57.3; //-> 139.822/2.440
 	jupiter.TamanhoTranslacao = 778.4; //-> 778.400.000/1.000.000
@@ -231,7 +268,7 @@ void setup(){
 	///Saturno
 
 	saturn.Translacao = 123; // 29.46 Anos - 29.46/0.24 = 122.75
-	saturn.vRotacao = 100; // 0.45 dia - 0.45/0.41 = 1.09
+	saturn.vRotacao = 109; // 0.45 dia - 0.45/0.41 = 1.09 -> x100 (diminuir a velociade de rotação)
 	saturn.aRotacao = 0; 
 	saturn.Raio = 47.73; //-> 116.464/2440
 	saturn.TamanhoTranslacao = 1427; //-> 1.427.000.000/1.000.000
@@ -240,7 +277,7 @@ void setup(){
 
 	//URANO
 	uranus.Translacao = 350; // 84.01 Anos - 84.01/0.24 = 350.04
-	uranus.vRotacao = 200; // 0.72 dia - 0.72/0.41 = 1.75
+	uranus.vRotacao = 175; // 0.72 dia - 0.72/0.41 = 1.75 -> x100 (diminuir a velociade de rotação)
 	uranus.aRotacao = 0;
 	uranus.Raio = 20.79; //-> 50.724/2440
 	uranus.TamanhoTranslacao = 1913.0; //-> 2.869.600.000/1.500.000
@@ -249,7 +286,7 @@ void setup(){
 
 	//NETUNO
 	neptune.Translacao = 687; // 164.79 Anos - 164.79/0.24 = 686.62
-	neptune.vRotacao = 200;	// 0.67 dia - 0.67/0.41 = 1.63
+	neptune.vRotacao = 163;	// 0.67 dia - 0.67/0.41 = 1.63 -> x100 (diminuir a velociade de rotação)
 	neptune.aRotacao = 0;
 	neptune.Raio = 20.19;  //-> 49.248/2440
 	neptune.TamanhoTranslacao = 2997.7; //-> 4.496.600.000/1.500.000
@@ -257,73 +294,165 @@ void setup(){
 	neptune.Estado = true;
 }
 
+// Definições de câmera
 void pCam(){
+	/**
+	 * Equação parametrica da esfera no espaço (definição para esse projeto com up da camera em y)
+	 * x = (raio)*cos(theta)*cos(phi)
+	 * y = (raio)*sin(phi)
+	 * z = (raio)*sin(theta)*cos(phi)
+	 * 
+	 * (raio) - distancia entre o foco da camera e a camera
+	 * theta - corresponde ao ângulo rotacionado com eixo rotacional vertical
+	 * phi - corresponde ao ângulo rotacionado com eixo rotacional horizontal
+	 * 
+	 * a cada 500 pixel corresponde a 180 graus de rotação
+	 */
 	float theta = (xMove/500.0)*M_PI + anguloAtualX;
 	float phi = (yMove/500.0)*M_PI + anguloAtualY;
 
+	// Define a posição de camera (x,y,z) apartir dos parametros theta e phi
+	// OffsetX e OffsetZ deslocamento de posição de camera quando o foco e atribuido aos planetas
 	camera.X = distCamera*cos(theta)*cos(phi) + offsetX;
 	camera.Y = distCamera*sin(phi);
 	camera.Z = distCamera*sin(theta)*cos(phi) + offsetZ;
 	
+	// define qual o valor de phi na faixa 0 até 2pi
     float faixaAngulo = ((phi/(2.0*M_PI)) - (int)(phi/(2.0*M_PI)))*2.0*M_PI;
 	
     if((faixaAngulo >= M_PI_2 && faixaAngulo <= 3*M_PI_2 )||(faixaAngulo <= -M_PI_2 && faixaAngulo >= -3*M_PI_2 ))
-	    gluLookAt(camera.X, camera.Y, camera.Z, focoCamX, focoCamY, focoCamZ, 0, -1, 0);
+	    // orientação do up da camera em -y quando -90° < phi < 90°
+		gluLookAt(camera.X, camera.Y, camera.Z, focoCamX, focoCamY, focoCamZ, 0, -1, 0);
     else 
+		// orientação do up da camera em -y quando phi < -90° e phi > 90°
         gluLookAt(camera.X, camera.Y, camera.Z, focoCamX, focoCamY, focoCamZ, 0, 1, 0);
 }
 
+// Desenha e atribui textura a esfera
 void desenhaEsfera(float raio, int lHori, int lVert, GLint texId){
+	// Habilita Textura
     glEnable(GL_TEXTURE_2D);
         glPushMatrix();
+			// Faz com que o opengl use a textura associado a texId
             glBindTexture(GL_TEXTURE_2D, texId);
+
+			// Execulta rotacao de -90 graus com eixo rotativo em x (devido ao up de camera)
             glRotated(-90, 1,0,0);
+
+			// cria um objeto Quadric (quádrico)
             GLUquadricObj* q = gluNewQuadric ( );
+
+			// Define o estilo de desenho  - GLU_FILL -> renderização das quádricas como poligonos primitivos
             gluQuadricDrawStyle ( q, GLU_FILL );
+
+			// Define os vettores normas da Quadric - GLU_SMOOTH -> Uma normal para cada vértice
             gluQuadricNormals ( q, GLU_SMOOTH );
+
+			// Abilita textura na Quadric
             gluQuadricTexture ( q, GL_TRUE );
-            gluSphere ( q, raio, 50, 50 );
+
+			// Desenha esfera com a Quadric - (lHori e lVert - corresponde a quantidade meridianos e paralelos)
+            gluSphere ( q, raio, lHori, lVert);
+
+			// exclui a qua quadric
             gluDeleteQuadric ( q );
+
+			// remove a rotação feita no inicio (retorna a posição inicial)
 			glRotated(90, 1,0,0);
         glPopMatrix();
+	
+	// Desabilita a textura
     glDisable(GL_TEXTURE_2D);
 }
 
+// Captura do movimento do mouse
 void moveMouse(int x, int y){
-	xMove = x - xInicial;
-	yMove = y - yInicial;
-	glutPostRedisplay();
+	// modo rotação
+	if(modoCamera == 1){
+		// Calcula o quanto o mouse se movel em "x" e "y" apartir "x" e "y" em que ocoreu o pressionamento 
+		// do botão esquerdo do mouse
+		xMove = x - xInicial;
+		yMove = y - yInicial;
+
+		// Faz um redesenho na tela
+		glutPostRedisplay();
+	} 
+	// modo zoom
+	else if(modoCamera == 2){
+		// muda a distancia de camera
+		distCamera += (y - yInicial);
+		yInicial = y;
+
+		// Limita a aproximação
+		if(distCamera < 1){
+			distCamera = 1;
+		}
+
+		// Limita o afastamento 
+		if(distCamera > 4500){
+			distCamera = 4500;
+		}
+
+		glutPostRedisplay();
+	}
+	
 }
 
 void mousePress(int button, int state, int x, int y){
 	switch (button)
     {
-        case GLUT_LEFT_BUTTON:
+        // Avalia o pressionamento do botão esquerdo do mouse
+		case GLUT_LEFT_BUTTON:
+			// Quando pressionado
 			if(state == GLUT_DOWN){
+				// Define a posição (x,y) na tela em que foi pressinado
 				xInicial = x;
 				yInicial = y;
+
+				// Define o modo de camera 1 (rotação de visualização)
+				modoCamera = 1;
 			}
+			
+			// Quando liberado
+			if(state == GLUT_UP){
+				// define os ângulos em que parou após a rotação (theta e phi)
+				anguloAtualX += (xMove/500.0)*M_PI;
+				anguloAtualY += (yMove/500.0)*M_PI;
 
+				// Seta os valores para "0"
+				xMove = 0;
+				yMove = 0;
+
+				// Define o modo de camera para "0" (Nada ocorre com a camera)
+				modoCamera = 0;
+			}
             break;
-        case GLUT_RIGHT_BUTTON: printf("Botao direito.");
-                                                        break;
-        case GLUT_MIDDLE_BUTTON: printf("Botao do meio.");
-                                                        break;
+		// Avalia o pressionamento do botão direito do mouse
+        case GLUT_RIGHT_BUTTON: 
+			// Quando pressionado
+			if (state == GLUT_DOWN){
+				// Define yInicial para o valor de y no momento em que foi pressionado
+				yInicial = y;
+
+				// Muda o modo de Camera 2 (Zoom de camera)
+				modoCamera = 2;
+			}
+			
+			// Quando e liberado
+			if(state == GLUT_UP){
+				// Define o modo de camera para "0" (Nada ocorre com a camera)
+				modoCamera = 0;
+			}
+            break;
     }
-
-	if(state == GLUT_UP){
-		anguloAtualX += (xMove/500.0)*M_PI;
-		anguloAtualY += (yMove/500.0)*M_PI;
-
-		xMove = 0;
-		yMove = 0;
-	}
     
 }
 
 void renderSystem(){
+	// Modo de textura como adição (para que a luz nas cordenadas (0,0,0) não afete na textura do sol e os disco de orbita)
 	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_ADD);
-	// cria um objeto disco de orbita
+
+	// cria um objeto Quadric que ira desenhar o disco de orbita
     GLUquadric *disc;
     disc = gluNewQuadric(); 
 
@@ -350,8 +479,10 @@ void renderSystem(){
 
 	// desenha esfera (raio, numeros de divisões em x, numero de divisoesem y, textura do objetos
 	// Sol ->
-	
 	desenhaEsfera(sun.Raio, sun.Faces, sun.Faces, texturaId[0]);
+
+	// Muda para o modo de textura para Modulate, fara então uma multiplicação entre a textura e a cor do objeto
+	// os parametros de cor variam de 0 a 1 em cada parametro de cor RGB
 	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 	
 	// Mercurio ->
@@ -448,6 +579,7 @@ void renderSystem(){
 
 void init(void) 
 {
+	// Seta alguams variáves que serão usadas inicialmente
 	mercury.timerTrans = 0;
 	mercury.timerRot = 0;
 	mercury.Estado = false;
@@ -496,7 +628,7 @@ void init(void)
     glEnable(GL_DEPTH_TEST);
 
 	// Gera vetor de texturas -> Param1: qtdade de texturas e -> Param2: variavel que sera o identificador das texturas
-    glGenTextures(11, texturaId);
+    glGenTextures(10, texturaId);
 
     // Parametros da textura no objeto -> GL_REPLACE - Substitui o a cor pela textura
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
@@ -513,7 +645,7 @@ void init(void)
 	carregaTextura(texturaId[7], "texturas/AnelSaturno.png");
 	carregaTextura(texturaId[8], "texturas/Urano.jpg");
 	carregaTextura(texturaId[9], "texturas/Netuno.jpg");
-	carregaTextura(texturaId[10], "texturas/Ceu.jpg");
+
 
   	// glShadeModel — selecione sombreamento plano ou suave
   	// As primitivas GL podem ter sombreamento plano ou suave. O sombreamento suave, 
@@ -526,9 +658,16 @@ void init(void)
 
 void DefineIluminacao (void)
 {
-        GLfloat luzAmbiente[4]={0.03,0.03,0.03,1.0}; 
-        GLfloat luzDifusa[4]={1.0,1.0,1.0,1.0};          // "cor" 
-        GLfloat luzEspecular[4]={0.2, 0.2, 0.2, 1.0};// "brilho" 
+		// Parâmetro de iluminação ambiente
+        GLfloat luzAmbiente[4]={0.03,0.03,0.03,1.0};
+
+		// Cor - variação (0.0 a 1.0) - define como cor da luz "branca"
+        GLfloat luzDifusa[4]={1.0,1.0,1.0,1.0};
+
+		// Brilho
+        GLfloat luzEspecular[4]={0.2, 0.2, 0.2, 1.0};
+
+		// Posição da luz no espaço
         GLfloat posicaoLuz[4]={0.0, 0.0, 0.0, 1.0};
  
         // Capacidade de brilho do material
@@ -537,6 +676,7 @@ void DefineIluminacao (void)
  
         // Define a refletância do material 
         glMaterialfv(GL_FRONT,GL_SPECULAR, especularidade);
+
         // Define a concentração do brilho
         glMateriali(GL_FRONT,GL_SHININESS,especMaterial);
  
@@ -554,14 +694,21 @@ void display(void)
 {
   //limpando buffer de cor e profundidade
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
   // glLoadIdentity — substitui a matriz atual pela matriz identidade
   // lipando a matrix - retirando sugeiras
   glLoadIdentity();
+
   //setando cor padrão
   glColor3f (1.0, 1.0, 1.0);
   
+  // Função que define posição de camera
   pCam();
+
+  // Função que define Iluminação
   DefineIluminacao();
+
+  // Função que desenha os planetas
   renderSystem();
 
 }
@@ -582,16 +729,18 @@ void reshape (int w, int h)
   //Em geral, a proporção no gluPerspective deve corresponder à proporção da janela de visualização associada. 
   //Por exemplo, aspecto = 2,0 significa que o ângulo de visão do espectador é duas vezes maior em x do que em y. 
   // Se a janela de visualização for duas vezes maior que a altura, ela exibirá a imagem sem distorção
-  gluPerspective(60.0, (float)w/(float)h, 0.2, 9000.0);//2147483647
+  gluPerspective(60.0, (float)w/(float)h, 0.2, 9000.0);
   //glMatrixMode — especifica qual matriz é a matriz atual
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
   gluLookAt(0, 0, 1080, 0, 0, 0, 0, 1, 0);
 }
+
 // função que faz controle de variaveis dinâmicas
 void keyboard (unsigned char key, int x, int y)
 {
    switch(key){
+	   	// Configuração inicial
 		case 'E':
 			tamRastro = 1;
 			distCamera = 4000;
@@ -633,12 +782,20 @@ void keyboard (unsigned char key, int x, int y)
     	glutPostRedisplay();
 		break;
 
+		// Sol
     	case '0':
+			// Lagura do Rastro dos planetas
 			tamRastro = 0.1;
+
+			// Distancia de camera
 			distCamera = 250;
+
+			// Define a posição do foco de camera para a posição do sol (0,0,0)
 			focoCamX = 0.0;
 			focoCamY = 0.0;
 			focoCamZ = 0.0;
+
+			// Define a posição da orbita do Sol neste caso (0,0) 
 			offsetX = 0.0;
 			offsetZ = 0.0;
 
@@ -657,6 +814,11 @@ void keyboard (unsigned char key, int x, int y)
 		case '1':
 			tamRastro = 0.01;
 			distCamera = 3;
+
+			// Habilita Mercúrio -
+			// A posição de Mercúrio sera o foco da camera
+			// assim quando o planeta for abilitado uma sequência de códigos
+			// na função "movimentoPlaneta" será execultada
 			mercury.Estado = true;
 			venus.Estado = false;
 			earth.Estado = false;
@@ -671,6 +833,8 @@ void keyboard (unsigned char key, int x, int y)
 		case '2':
 			tamRastro = 0.01;
 			distCamera = 15;
+
+			// Habilita Venus -
 			mercury.Estado = false;
 			venus.Estado = true;
 			earth.Estado = false;
@@ -685,6 +849,8 @@ void keyboard (unsigned char key, int x, int y)
 		case '3':
 			tamRastro = 0.01;
 			distCamera = 16;
+
+			// Habilita Terra -
 			mercury.Estado = false;
 			venus.Estado = false;
 			earth.Estado = true;
@@ -699,6 +865,8 @@ void keyboard (unsigned char key, int x, int y)
 		case '4':
 			tamRastro = 0.01;
 			distCamera = 9;
+
+			// Habilita Marte -
 			mercury.Estado = false;
 			venus.Estado = false;
 			earth.Estado = false;
@@ -713,6 +881,8 @@ void keyboard (unsigned char key, int x, int y)
 		case '5':
 			tamRastro = 0.01;
 			distCamera = 172;
+
+			// Habilita Jupiter -
 			mercury.Estado = false;
 			venus.Estado = false;
 			earth.Estado = false;
@@ -727,6 +897,8 @@ void keyboard (unsigned char key, int x, int y)
 		case '6':
 			tamRastro = 0.01;
 			distCamera = 144;
+
+			// Habilita Saturno -
 			mercury.Estado = false;
 			venus.Estado = false;
 			earth.Estado = false;
@@ -741,6 +913,8 @@ void keyboard (unsigned char key, int x, int y)
 		case '7':
 			tamRastro = 0.01;
 			distCamera = 63;
+
+			// Habilita Urano -
 			mercury.Estado = false;
 			venus.Estado = false;
 			earth.Estado = false;
@@ -755,6 +929,8 @@ void keyboard (unsigned char key, int x, int y)
 		case '8':
 			tamRastro = 0.01;
 			distCamera = 61;
+
+			// Habilita Neturno -
 			mercury.Estado = false;
 			venus.Estado = false;
 			earth.Estado = false;
@@ -768,30 +944,53 @@ void keyboard (unsigned char key, int x, int y)
 	}
 }
 
+// Definição do Movimento do planeta (Rotação e Translação)
 void movimentoPlaneta(Planeta* planeta){
 
+	// Calcula qual é o ângulo de translação do planeta.
+	// cada planeta pecorre sua translação de forma diferente
+	// o calculo do passo (ângulo) deve ser em radianos
+	// e necessaria a converção e adequação de cada para cada planeta
+	// pi/(180*Translação) -> define que a equivalencia de 1 grau de de rotação para cada planeta
+	// timerTrans varia 0 a 360*Translação
+	// com isso a translação irá 0 até 360 graus mas de forma diferente para cada planeta
 	float ang = (*planeta).timerTrans*(M_PI/(180.0*(*planeta).Translacao));
 
+	// Define a posição em X e Z de cada planeta
 	(*planeta).posX = (*planeta).TamanhoTranslacao*cos(ang);
 	(*planeta).posZ = (*planeta).TamanhoTranslacao*sin(ang);
 
+	// Quando o planeta está abilitado
 	if((*planeta).Estado){
+		// faz um deslocamento de posição para o ponto em que o planeta se localiza (variáveis de câmera)
 		offsetX = (*planeta).posX;
 		offsetZ = (*planeta).posZ;
+
+		// Atualiza o foco para posição atual do planeta (variáveis de câmera)
 		focoCamX = (*planeta).posX;
 		focoCamZ = (*planeta).posZ;
 	}
 
+	// Incremento do tempo de translação
 	(*planeta).timerTrans++;
 
+	// Verifica se o timerTrans chegou ao valor máximo (a volta completa em torno do sol)
 	if((*planeta).timerTrans == 360*(*planeta).TamanhoTranslacao){
 		(*planeta).timerTrans = 0;
 	}
 
-	(*planeta).aRotacao = (*planeta).timerRot*(360/(*planeta).vRotacao);
+	// Define qual o ângulo atual de rotação do planeta
+	// cada planeta rotaciona de forma diferente
+	// a função glRotated(ângulo, x, y, z) os valores assumidos por ângulo devem ser
+	// de 0 a 360
+	// logo: timerRot ira de 0 até vRotação
+	// para assim mapear a rotação de cada planeta 0 a 360
+	(*planeta).aRotacao = (*planeta).timerRot*(360.0/(*planeta).vRotacao);
 
+	// Incremeto do tempo de rotação
 	(*planeta).timerRot++;
 
+	// Verifica se timerRot chegou ao valor máximo (a volta completa em torno do seu eixo)
 	if((*planeta).timerRot == (*planeta).vRotacao){
 		(*planeta).timerRot = 0;
 	}
@@ -799,31 +998,33 @@ void movimentoPlaneta(Planeta* planeta){
 
 }
 
+// Animação
 void Timer(int value){
 	// Animação dos planetas
 	// Mercurio
 	movimentoPlaneta(&mercury);
-	glutPostRedisplay();
+
 	// Venus
 	movimentoPlaneta(&venus);
-	glutPostRedisplay();
+
 	// Terra
 	movimentoPlaneta(&earth);
-	glutPostRedisplay();
+
 	// Marte
 	movimentoPlaneta(&mars);
-	glutPostRedisplay();
+
 	// Jupiter
 	movimentoPlaneta(&jupiter);
-	glutPostRedisplay();
+
 	// Saturno
 	movimentoPlaneta(&saturn);
-	glutPostRedisplay();
+
 	// Urano
 	movimentoPlaneta(&uranus);
-	glutPostRedisplay();
+	
 	// Netuno
 	movimentoPlaneta(&neptune);
+	
 	glutPostRedisplay();
 
 	// Redesenha o quadrado com as novas coordenadas 
