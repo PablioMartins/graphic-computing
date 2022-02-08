@@ -67,12 +67,12 @@
 
 - [x] system operation
   - [x] corresponding dimensions of the planets
-  - [ ] corresponding rotation of the planets
-- [ ] solar system lighting application
-- [ ] texture applications in the solar system
+  - [x] corresponding rotation of the planets
+- [x] solar system lighting application
+- [x] texture applications in the solar system
 - [x] README implementation
-- [ ] project report
-- [ ] project presentation
+- [x] project report
+- [x] project presentation
 
 
 
