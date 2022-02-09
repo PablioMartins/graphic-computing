@@ -579,7 +579,7 @@ void renderSystem(){
 
 void init(void) 
 {
-	// Seta alguams variáves que serão usadas inicialmente
+	// Seta algumas variáves que serão usadas inicialmente
 	mercury.timerTrans = 0;
 	mercury.timerRot = 0;
 	mercury.Estado = false;
@@ -674,7 +674,7 @@ void DefineIluminacao (void)
         GLfloat especularidade[4]={1.0,1.0,1.0,1.0}; 
         GLint especMaterial = 60;
  
-        // Define a refletância do material 
+        // Define a reflectância do material 
         glMaterialfv(GL_FRONT,GL_SPECULAR, especularidade);
 
         // Define a concentração do brilho
@@ -696,7 +696,7 @@ void display(void)
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   // glLoadIdentity — substitui a matriz atual pela matriz identidade
-  // lipando a matrix - retirando sugeiras
+  // lipando a matrix - retirando sujeiras
   glLoadIdentity();
 
   //setando cor padrão
